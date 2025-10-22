@@ -1,0 +1,307 @@
+## Goal: Create prompts for technical + commercial analysis with Checkpoint 2 (Validation Checklist)
+
+Your task is to guide the user through building the analysis pipeline that extracts technical insights and commercial feasibility from processed papers, then implements Checkpoint 2 where user reviews analysis AND completes validation checklist items based on their interest level.
+
+### Why This Matters
+This is where AI adds the most value - reading research papers thoroughly, extracting methodology and results, and drafting commercial viability assessments. Getting the prompts right here determines the quality of your workflow's output.
+
+---
+
+## Phase 1: Design Technical Analysis Prompt
+
+### 1. Craft the technical analysis prompt
+Using the winning LLM from Step 4, create a comprehensive analysis prompt:
+
+**Technical Analysis Prompt Template:**
+```
+You are a technical research analyst. Analyze this research paper and extract the following:
+
+## 1. Problem Addressed
+What real-world problem or research question does this paper tackle? Be specific about the domain and the gap it fills.
+
+## 2. Methodology
+- What approach/technique does the paper use?
+- What are the key technical components or algorithms?
+- How does it differ from existing approaches?
+
+## 3. Results & Evidence
+- What are the main findings or outcomes?
+- Extract specific metrics, benchmarks, or performance numbers from tables
+- What datasets or experiments were used for validation?
+
+## 4. Technical Feasibility for Productization
+- How complex is the implementation? (infrastructure, compute, data requirements)
+- Are there open-source implementations available?
+- What technical dependencies or prerequisites exist?
+
+## 5. Scalability Assessment
+- Can this approach scale to production workloads?
+- What are the computational costs (training, inference)?
+- Are there known bottlenecks or limitations?
+
+## 6. Limitations & Risks
+- What limitations do the authors acknowledge?
+- What could go wrong in a production setting?
+- What assumptions might not hold in real-world deployment?
+
+Please provide structured, specific answers with evidence from the paper. When referencing figures, tables, or equations, describe them clearly.
+```
+
+**Add to n8n workflow:**
+- Use the PDF processing workflow from Step 4
+- Send above prompt with the paper
+- Capture response as `technical_analysis`
+
+**Why this matters:** This prompt structure ensures consistent, comprehensive technical analysis across all papers.
+
+---
+
+## Phase 2: Design Commercial Feasibility Prompt
+
+### 2. Craft the commercial feasibility prompt
+Create a second analysis focused on business viability:
+
+**Commercial Feasibility Prompt Template:**
+```
+You are a commercialization analyst. Based on this research paper, assess its viability as a commercial product:
+
+## 1. Problem-Solution Fit
+- Does this solve a significant real-world problem?
+- Who would be the potential customers/users (be specific about roles, industries)?
+- Is this a "vitamin" (nice-to-have) or "painkiller" (must-have) solution?
+
+## 2. Market Opportunity (TAM/SAM/SOM Estimation)
+Based on the problem space and target users:
+- **TAM (Total Addressable Market):** What's the overall market size for this type of solution?
+- **SAM (Serviceable Addressable Market):** What segment could realistically be served?
+- **SOM (Serviceable Obtainable Market):** What's a realistic initial market capture?
+
+Please provide rough estimates with reasoning. Use comparable market sizes where possible.
+
+## 3. Development Cost Estimate
+- What would it take to build an MVP based on this research?
+  - Team size and composition (engineers, researchers, etc.)
+  - Time to MVP (months)
+  - Infrastructure/compute costs
+  - Data acquisition costs
+- Estimated total development cost range (provide low/medium/high scenarios)
+
+## 4. Regulatory & Compliance Considerations
+- Are there regulatory hurdles? (FDA approval, data privacy, safety certifications, etc.)
+- What compliance requirements exist in the target industry?
+- Estimated time/cost to address regulatory requirements
+
+## 5. Go-to-Market Challenges
+- What would make this hard to commercialize?
+- What's the competition landscape?
+- What moats or defensibility exist?
+
+## 6. Commercial Viability Score
+Rate 1-10 with justification:
+- Technical Readiness Level (TRL): [1-10]
+- Market Need Strength: [1-10]
+- Competitive Advantage: [1-10]
+- **Overall Commercial Viability**: [1-10]
+
+Provide a 2-3 sentence summary judgment on whether this is worth pursuing for commercialization.
+```
+
+**Optional: Add external market research**
+If time allows, integrate with market research APIs:
+- Google Custom Search API (for market size estimates)
+- Crunchbase API (for competitive landscape)
+- PitchBook/CB Insights (if available)
+
+**Why this matters:** This transforms technical research into business intelligence that industry partners and investors can act on.
+
+---
+
+## Phase 3: Combine Analyses in Workflow
+
+### 3. Build the complete analysis pipeline
+Extend your n8n workflow:
+
+**Workflow Structure:**
+1. **Input:** Approved papers from Checkpoint 1 (Step 3)
+2. **For Each Paper** (use Loop or Split in Batches):
+   a. Download PDF
+   b. Process with chosen LLM (Step 4)
+   c. Run Technical Analysis prompt → `technical_analysis`
+   d. Run Commercial Feasibility prompt → `commercial_analysis`
+   e. Combine into single analysis object:
+   ```json
+   {
+     "paper_id": "...",
+     "paper_title": "...",
+     "pdf_url": "...",
+     "technical_analysis": {...},
+     "commercial_analysis": {...},
+     "analyzed_at": "..."
+   }
+   ```
+3. **Aggregate** all paper analyses
+4. **Proceed to Checkpoint 2**
+
+**Why this matters:** Processing multiple papers systematically ensures consistent quality and enables cross-paper comparisons.
+
+---
+
+## Phase 4: Implement Checkpoint 2 - Analysis Review
+
+### 4. Add blocking checkpoint for human review
+Using the checkpoint pattern from Step 2:
+
+**Set** node (prepare checkpoint data):
+- `checkpoint_name` = "Checkpoint 2: Review Analyses"
+- `papers_analyzed` = `{{ $json.length }}`
+- `analyses_data` = `{{ JSON.stringify($json) }}`
+
+**Wait** node:
+- Resume: "On webhook call"
+
+**Create review interface** (simple HTML or form):
+```html
+<h2>Checkpoint 2: Review Paper Analyses</h2>
+<div id="analyses"></div>
+<form action="[webhook-url]" method="POST">
+  <h3>Review Feedback</h3>
+  <label>
+    <input type="checkbox" name="analyses_acceptable" value="yes" required>
+    Analyses are accurate and comprehensive
+  </label>
+  <label>
+    Papers to re-analyze (IDs): <input type="text" name="reanalyze_ids">
+  </label>
+  <label>
+    Additional context to add: <textarea name="additional_context"></textarea>
+  </label>
+  <label>
+    <input type="radio" name="decision" value="approved" required> Approve and continue
+  </label>
+  <label>
+    <input type="radio" name="decision" value="refine"> Request refinements
+  </label>
+  <button type="submit">Submit Review</button>
+</form>
+
+<script>
+  const analyses = [YOUR_ANALYSES_JSON];
+  document.getElementById('analyses').innerHTML = analyses.map((a, i) =>
+    `<div style="border: 1px solid #ccc; padding: 15px; margin: 10px 0;">
+      <h3>${i+1}. ${a.paper_title}</h3>
+
+      <h4>Technical Analysis:</h4>
+      <ul>
+        <li><strong>Problem:</strong> ${a.technical_analysis.problem_addressed}</li>
+        <li><strong>Methodology:</strong> ${a.technical_analysis.methodology}</li>
+        <li><strong>Results:</strong> ${a.technical_analysis.results}</li>
+        <li><strong>Feasibility:</strong> ${a.technical_analysis.technical_feasibility}</li>
+      </ul>
+
+      <h4>Commercial Analysis:</h4>
+      <ul>
+        <li><strong>Market Fit:</strong> ${a.commercial_analysis.problem_solution_fit}</li>
+        <li><strong>TAM/SAM/SOM:</strong> ${a.commercial_analysis.market_opportunity}</li>
+        <li><strong>Development Cost:</strong> ${a.commercial_analysis.development_cost}</li>
+        <li><strong>Viability Score:</strong> ${a.commercial_analysis.commercial_viability_score}/10</li>
+      </ul>
+    </div>`
+  ).join('');
+</script>
+```
+
+**After Wait node - Process user feedback:**
+- **Switch** node:
+  - If `decision === "approved"`: Continue to Step 6
+  - If `decision === "refine"`: Re-run analysis with additional context
+
+**Why this matters:** Human validation ensures the AI analysis is accurate and useful before generating final documents.
+
+---
+
+## Phase 5: Test Analysis Quality
+
+### 5. Test with papers from Step 3
+Run the complete analysis pipeline on your test papers:
+
+**Quality Checks:**
+- Does technical analysis capture methodology accurately?
+- Does it extract data from tables/figures correctly?
+- Does commercial analysis provide realistic market estimates?
+- Are limitations and risks identified?
+- Is the output actionable for decision-making?
+
+**Document issues:**
+- Where does the analysis fall short?
+- What manual corrections are needed?
+- Is "good enough" quality achieved, or does prompting need refinement?
+
+**Why this matters:** Iterating on prompts now prevents poor quality outputs later.
+
+---
+
+## Output Requirements
+
+At the end of this step, create:
+
+1. **n8n Workflow:** "Analysis Pipeline with Checkpoint 2"
+   - Processes papers through technical + commercial analysis
+   - Implements Checkpoint 2 blocking pattern
+   - Working end-to-end
+
+2. **File:** `your_workspace/your_workflows/research_analysis_experiment/analysis_prompts.md`
+```markdown
+# Analysis Prompts
+
+## Technical Analysis Prompt
+[Full prompt text]
+
+## Commercial Feasibility Prompt
+[Full prompt text]
+
+## Prompt Iteration Notes
+- **Version 1:** [What worked / didn't work]
+- **Version 2 (if refined):** [Changes made and why]
+- **Final Version:** [Current best prompt]
+
+**Quality Rating:** [1-10 based on test results]
+```
+
+3. **File:** `your_workspace/your_workflows/research_analysis_experiment/analysis_test_results.md`
+```markdown
+# Analysis Quality Test Results
+
+## Paper 1: [Title]
+- **Technical Analysis Quality:** [1-10] - [Notes]
+- **Commercial Analysis Quality:** [1-10] - [Notes]
+- **Manual Corrections Needed:** [List]
+
+## Paper 2: [Title]
+[Same format]
+
+## Overall Assessment
+- **Average Quality Score:** [X/10]
+- **Acceptable for MVP?** [Yes/No - reasoning]
+- **Prompt Refinements Needed:** [List]
+
+**Checkpoint 2 Functionality:**
+- [ ] Workflow blocks correctly
+- [ ] Analyses displayed clearly
+- [ ] User can approve/refine
+- [ ] State persists after checkpoint
+
+**Date Completed:** [Date]
+**Time Spent:** [Hours]
+```
+
+---
+
+## Instructions for the AI Assistant
+
+- Emphasize prompt engineering - quality output depends on prompt quality
+- If initial analyses are poor, help iterate on prompts before moving forward
+- Encourage testing with diverse papers (theory-heavy, experiment-heavy, applied research)
+- Help validate that commercial estimates are realistic (not wildly optimistic or pessimistic)
+- Ensure Checkpoint 2 UX is clear - user should easily see what they're approving
+- If analysis quality is below 6/10, this may signal need for alternative approach
+- Document everything - prompt versions, quality scores, refinements
