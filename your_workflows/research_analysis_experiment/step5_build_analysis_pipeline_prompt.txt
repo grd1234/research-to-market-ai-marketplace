@@ -146,76 +146,98 @@ Extend your n8n workflow:
 
 ---
 
-## Phase 4: Implement Checkpoint 2 - Analysis Review
+## Phase 4: Implement Checkpoint 2 - Analysis Review + Validation Checklist
 
-### 4. Add blocking checkpoint for human review
-Using the checkpoint pattern from Step 2:
+### 4. Add blocking checkpoint for human review AND validation checklist completion
+
+**IMPORTANT:** This checkpoint implements the tiered validation system. Use the complete merged design from:
+`checkpoint2_merged_design.md`
+
+**Overview:**
+This checkpoint serves two functions:
+1. Human validates AI-generated analyses for accuracy
+2. Partner completes validation checklist based on interest level (3/8/12/14 items)
 
 **Set** node (prepare checkpoint data):
-- `checkpoint_name` = "Checkpoint 2: Review Analyses"
+- `checkpoint_name` = "Checkpoint 2: Review Analyses & Complete Validation Checklist"
+- `interest_level` = `{{ $('Checkpoint 1').item.json.interest_level }}`
 - `papers_analyzed` = `{{ $json.length }}`
 - `analyses_data` = `{{ JSON.stringify($json) }}`
 
 **Wait** node:
 - Resume: "On webhook call"
+- Timeout: 7 days (allows draft saving)
 
-**Create review interface** (simple HTML or form):
-```html
-<h2>Checkpoint 2: Review Paper Analyses</h2>
-<div id="analyses"></div>
-<form action="[webhook-url]" method="POST">
-  <h3>Review Feedback</h3>
-  <label>
-    <input type="checkbox" name="analyses_acceptable" value="yes" required>
-    Analyses are accurate and comprehensive
-  </label>
-  <label>
-    Papers to re-analyze (IDs): <input type="text" name="reanalyze_ids">
-  </label>
-  <label>
-    Additional context to add: <textarea name="additional_context"></textarea>
-  </label>
-  <label>
-    <input type="radio" name="decision" value="approved" required> Approve and continue
-  </label>
-  <label>
-    <input type="radio" name="decision" value="refine"> Request refinements
-  </label>
-  <button type="submit">Submit Review</button>
-</form>
+**Create review interface with validation checklist:**
 
-<script>
-  const analyses = [YOUR_ANALYSES_JSON];
-  document.getElementById('analyses').innerHTML = analyses.map((a, i) =>
-    `<div style="border: 1px solid #ccc; padding: 15px; margin: 10px 0;">
-      <h3>${i+1}. ${a.paper_title}</h3>
+**REFERENCE THE COMPLETE HTML/JS IMPLEMENTATION IN:** `checkpoint2_merged_design.md`
 
-      <h4>Technical Analysis:</h4>
-      <ul>
-        <li><strong>Problem:</strong> ${a.technical_analysis.problem_addressed}</li>
-        <li><strong>Methodology:</strong> ${a.technical_analysis.methodology}</li>
-        <li><strong>Results:</strong> ${a.technical_analysis.results}</li>
-        <li><strong>Feasibility:</strong> ${a.technical_analysis.technical_feasibility}</li>
-      </ul>
-
-      <h4>Commercial Analysis:</h4>
-      <ul>
-        <li><strong>Market Fit:</strong> ${a.commercial_analysis.problem_solution_fit}</li>
-        <li><strong>TAM/SAM/SOM:</strong> ${a.commercial_analysis.market_opportunity}</li>
-        <li><strong>Development Cost:</strong> ${a.commercial_analysis.development_cost}</li>
-        <li><strong>Viability Score:</strong> ${a.commercial_analysis.commercial_viability_score}/10</li>
-      </ul>
-    </div>`
-  ).join('');
-</script>
-```
+The merged design includes:
+- ✅ Section 1: Analysis review display
+- ✅ Section 2: Tiered validation checklist (3/8/12/14 items based on interest level)
+- ✅ Section 3: Progress bar showing X/Y items complete
+- ✅ Draft saving capability ("Complete", "Save Draft", "Refine" options)
+- ✅ Real-time progress tracking
+- ✅ Validation logic preventing incomplete submissions
+- ✅ Help text for all fields
 
 **After Wait node - Process user feedback:**
-- **Switch** node:
-  - If `decision === "approved"`: Continue to Step 6
-  - If `decision === "refine"`: Re-run analysis with additional context
 
-**Why this matters:** Human validation ensures the AI analysis is accurate and useful before generating final documents.
+**Code** node (extract checkpoint response):
+```javascript
+// Get webhook response
+const response = $input.all()[0].json;
+
+const decision = response.decision;
+const interest_level = response.interest_level;
+const checklist_complete = response.checklist_complete === 'true';
+
+// Extract validation checklist data
+const validationData = {
+  business_problem: response.item_business_problem || '',
+  partner_confirms_relevance: response.item_partner_confirms_relevance === 'on',
+  ip_status: response.item_ip_status || '',
+  technical_feasibility: response.item_technical_feasibility || '',
+  risk_factors: response.item_risk_factors || '',
+  market_size: response.item_market_size || '',
+  timeline: {
+    pilot: response.item_timeline_pilot || '',
+    mvp: response.item_timeline_mvp || '',
+    production: response.item_timeline_production || ''
+  },
+  budget: {
+    pilot: response.item_budget_pilot || '',
+    mvp: response.item_budget_mvp || '',
+    production: response.item_budget_production || ''
+  },
+  team_size: response.item_team_size || '',
+  regulatory: response.item_regulatory || '',
+  competitive_alternatives: response.item_competitive_alternatives || '',
+  success_metrics: response.item_success_metrics || ''
+};
+
+return {
+  decision: decision,
+  interest_level: interest_level,
+  checklist_complete: checklist_complete,
+  validation_data: validationData,
+  analyses: JSON.parse(response.analyses_data),
+  reanalyze_ids: response.reanalyze_ids || '',
+  additional_context: response.additional_context || ''
+};
+```
+
+**Switch** node (route based on decision):
+- Route 1: If `decision === "approved"`: Continue to Step 6 (Checkpoint 3)
+- Route 2: If `decision === "save_draft"`: Save workflow state, send resume link
+- Route 3: If `decision === "refine"`: Re-run analysis with additional context, loop back
+
+**Why this matters:**
+- Human validation ensures AI analysis accuracy
+- Validation checklist gathers structured data for marketplace listing
+- Tiered system (3/8/12/14 items) matches partner commitment level
+- Draft saving reduces pressure to complete in one session
+- This data flows to Checkpoint 3 for marketplace preview
 
 ---
 

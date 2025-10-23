@@ -46,12 +46,15 @@ This workflow is the initial focus for MVP development. Once validated, the mark
 2. **Retrieval Phase**: System retrieves multiple research papers from external sources
 3. **Ranking Phase**: System ranks papers by relevance to search criteria
 4. **Selection Phase**: Industry partner reviews ranked results and selects top 3-5 papers
-5. **Reading & Comprehension Phase**: Industry partner reads through PDFs containing text, images, tables, mathematical proofs
-6. **Consolidation Phase**: Industry partner analyzes selected papers to determine likelihood of solving customer pain point/problem
-7. **Validation Phase**: Industry partner evaluates against key criteria:
-   - **Problem-Solution Fit**: Does research address real-world problem? Who are potential users/buyers? What's the TAM/SAM/SOM?
-   - **Commercial Feasibility**: Can this become a product without massive technical/regulatory hurdles? Reasonable development costs? Can it scale?
-8. **Documentation Submission**: Industry partner creates and submits use case validation document ready for investor review
+5. **Reading & Comprehension Phase**: Industry partner with the help of AI reads through PDFs containing text, images, tables, mathematical proofs
+6. **Consolidation Phase**: Industry partner / AI analyzes selected papers to determine likelihood of solving customer pain point/problem
+7. **Validation Phase**: Industry partner / AI evaluates against key criteria:
+   - **Problem-Solution Fit**: Does the research address a real-world problem? Who are the potential users or buyers? What are the Total Addressable Market (TAM), Serviceable Available Market (SAM), and Serviceable Obtainable Market (SOM)?
+   - **Commercial Feasibility**: Can this research be developed into a viable product without major technical or regulatory hurdles? Are development costs reasonable? Can it scale effectively?
+   - **Intellectual Property (Patents & Copyrights):**: The industry partner and/or AI conduct a patent search and assess copyright protection for the research outputs.
+8. **Documentation Submission**: 
+   - **No Patents**: If there no patents or copyrights protection are discovered, the Industry partner with the help of AI creates and submits use case validation document ready for investor review.
+    - **Patents**: If patents, the industry partner approaches the Researcher to establish partnership in phase 2 of this project.
 
 **Friction Points:**
 - **Retrieving multiple research papers** from external sources (arXiv, Google Scholar)
@@ -325,7 +328,7 @@ Validation requirements scale with partner commitment. Partners can upgrade thei
 - Documents are marketplace-ready (tagged with industry partner interest signals)
 
 **Phase 2 (Future): Industry Partner → Investor Matching**
-- Industry partners with validated use cases can signal interest in funding/partnership
+- Industry partners with validated and IP-verified use cases signal interest in funding or partnership opportunities through marketplace.
 - Investors browse marketplace of validated opportunities (pre-vetted by industry partner analysis)
 - System facilitates introductions and connections based on match criteria
 

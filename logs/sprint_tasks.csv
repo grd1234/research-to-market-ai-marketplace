@@ -1,0 +1,17 @@
+task_id,sprint,task,status,due_date,source,expected_artifact,date_added,notes
+setup_cli,1,Set up Claude Code or similar CLI tool,done,2025-10-22,START_HERE.md,,2025-10-22,Completed - using Claude Code
+setup_git,1,Set up version control (Git) for bootcamp folder,backlog,2025-10-22,START_HERE.md,.git directory,2025-10-22,
+orient_start,1,Run master orchestrator workflow for first time,done,2025-10-22,START_HERE.md,your_workspace/.workflow_initialized,2025-10-22,Completed 2025-10-23
+orient_profile,1,Complete profile conversation to define background and context,done,2025-10-22,logistics/orientation/step2,your_workspace/profile/participant_profile.md,2025-10-22,Completed - profile exists
+orient_goals,1,Set personal bootcamp goals and time commitments,done,2025-10-22,logistics/orientation/step3,your_workspace/profile/participant_profile.md,2025-10-22,Completed - in profile
+orient_project,1,Define or shortlist project idea,done,2025-10-22,logistics/orientation/step4,your_workspace/profile/participant_profile.md,2025-10-22,Completed - Research-to-Market Marketplace
+ideate_problem,1,Complete problem framing - define workflow inefficiency,done,2025-10-24,building/1_ideation/step1,your_workspace/reports/problem_definition.md,2025-10-22,Completed - comprehensive problem_definition.md
+ideate_assumptions,1,Challenge and validate assumptions about the workflow,done,2025-10-24,building/1_ideation/step2,your_workspace/reports/problem_definition.md,2025-10-22,Completed - assumptions analysis in problem_definition.md
+ideate_solutions,1,Generate multiple solution approaches with different autonomy levels,done,2025-10-24,building/1_ideation/step3,your_workspace/reports/problem_definition.md,2025-10-22,Completed - 5 hypotheses documented
+ideate_selection,1,Select and design the most promising solution,done,2025-10-24,building/1_ideation/step4,your_workspace/reports/problem_definition.md,2025-10-22,Completed - Hypothesis 5 selected
+ideate_experiment,1,Design experiment plan to validate the solution,done,2025-10-24,building/1_ideation/step5,your_workspace/reports/problem_definition.md,2025-10-22,Completed - full experiment plan documented
+ideate_workflow,1,Generate complete YAML workflow with prompt files,done,2025-10-24,building/1_ideation/step6,your_workspace/your_workflows/[project_name]/[project_name]_workflow.md,2025-10-22,Completed - experiment workflow created
+share_profile,1,Share participant_profile.md on Slack with cohort,done,2025-10-24,logistics/orientation,,2025-10-22,Completed - shared on Slack
+share_project,1,Share problem_definition.md on Slack with cohort,backlog,2025-10-24,building/1_ideation,,2025-10-22,
+book_mentor,1,Book first mentorship call,backlog,2025-10-24,logistics/program_information,,2025-10-22,
+test_workflow,1,Test the generated YAML workflow,backlog,2025-10-27,building/1_ideation/step6,,2025-10-22,
