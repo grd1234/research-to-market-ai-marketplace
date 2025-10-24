@@ -1,0 +1,299 @@
+## Goal: Test complete workflow with 3 search queries, document results
+
+Your task is to guide the user through rigorous end-to-end testing of the complete workflow with 3 different search queries to validate reliability, quality, and consistency.
+
+### Why This Matters
+Building a workflow is one thing - proving it works consistently is another. Running 3 complete tests reveals patterns, edge cases, and reliability issues that won't show up in a single test run. This data determines your Go/No-Go decision.
+
+---
+
+## Phase 1: Select Test Queries
+
+### 1. Choose 3 diverse test queries
+Select queries that test different aspects of the workflow:
+
+**Test Query Criteria:**
+- Query 1: Broad topic with many results (tests ranking/filtering)
+- Query 2: Specific niche topic (tests precision)
+- Query 3: Multimodal-heavy topic (tests PDF processing with complex visual content)
+
+**Recommended Test Queries:**
+1. **"multimodal learning vision language models"**
+   - Broad, popular topic
+   - Papers should have architecture diagrams
+   - Tests: retrieval scale, diagram processing
+
+2. **"reinforcement learning robotics manipulation"**
+   - More specific application domain
+   - Papers should have experimental results tables
+   - Tests: table extraction, niche search precision
+
+3. **"graph neural networks for drug discovery"**
+   - Cross-domain application
+   - Papers should have molecular structures, graphs, equations
+   - Tests: complex visual content, mathematical notation
+
+**Why this matters:** Diverse queries reveal whether the workflow generalizes or only works for specific types of papers.
+
+---
+
+## Phase 2: Run Test 1
+
+### 2. Execute first complete workflow run
+**Test 1 Query:** [Selected query]
+
+**Step-by-step execution:**
+
+1. **Start workflow** with Query 1
+2. **Checkpoint 1 - Paper Review:**
+   - How many papers retrieved?
+   - Are they relevant to the query?
+   - Rate relevance (1-10)
+   - Approve to continue
+3. **Wait for PDF processing & analysis** (automated)
+4. **Checkpoint 2 - Analysis Review:**
+   - Review technical analysis - accurate?
+   - Review commercial analysis - realistic?
+   - Rate quality (1-10)
+   - Approve to continue
+5. **Wait for document generation** (automated)
+6. **Checkpoint 3 - Final Approval:**
+   - Review document completeness
+   - Check formatting
+   - Verify accuracy against papers
+   - Approve
+
+**Document results immediately:**
+
+**File:** `your_workspace/your_workflows/research_analysis_experiment/test_1_results.md`
+```markdown
+# Test 1 Results
+
+**Query:** {{ query }}
+**Date/Time:** {{ timestamp }}
+**Duration:** [Total time from start to final approval]
+
+## Retrieval (Checkpoint 1)
+- **Papers Retrieved:** {{ count }}
+- **Relevance Rating:** {{ 1-10 }}
+- **Issues:** {{ any problems }}
+- **Time to Checkpoint 1:** {{ minutes }}
+
+## Analysis (Checkpoint 2)
+- **PDF Processing Quality:** {{ 1-10 }}
+  - Text extraction: {{ notes }}
+  - Image/diagram processing: {{ notes }}
+  - Table extraction: {{ notes }}
+  - Math notation: {{ notes }}
+- **Technical Analysis Quality:** {{ 1-10 }}
+- **Commercial Analysis Quality:** {{ 1-10 }}
+- **Issues:** {{ any problems }}
+- **Time from CP1 to CP2:** {{ minutes }}
+
+## Output (Checkpoint 3)
+- **Document Completeness:** {{ 1-10 }}
+- **Document Formatting:** {{ clean / issues noted }}
+- **Accuracy:** {{ 1-10 }}
+- **Usefulness for Decision-Making:** {{ 1-10 }}
+- **Issues:** {{ any problems }}
+- **Time from CP2 to CP3:** {{ minutes }}
+
+## Overall Workflow Performance
+- **Total Time:** {{ minutes }}
+- **Automated Processing Time:** {{ minutes }}
+- **Manual Review Time:** {{ minutes }}
+- **Errors Encountered:** {{ count and description }}
+- **Workflow Stability:** {{ stable / unstable - notes }}
+
+## Quality Assessment
+- **Technical Accuracy:** {{ 1-10 }}
+- **Commercial Usefulness:** {{ 1-10 }}
+- **Overall Output Quality:** {{ 1-10 }}
+
+## Observations
+- {{ What worked well }}
+- {{ What could be improved }}
+- {{ Any surprises or unexpected behavior }}
+
+**Test 1 Success:** [Yes / Partial / No]
+```
+
+**Why this matters:** Detailed documentation of the first run establishes a baseline for comparison.
+
+---
+
+## Phase 3: Run Test 2
+
+### 3. Execute second workflow run
+**Test 2 Query:** [Selected query 2]
+
+Follow the same process as Test 1, but now compare:
+- Is performance consistent with Test 1?
+- Are there new issues or edge cases?
+- Is quality similar or different?
+
+**Document in:** `your_workspace/your_workflows/research_analysis_experiment/test_2_results.md`
+
+**Use the same template as Test 1**
+
+**Additional comparison notes:**
+- Faster or slower than Test 1?
+- Better or worse quality?
+- Different types of issues?
+
+**Why this matters:** The second run reveals whether Test 1 success was a fluke or indicates reliable performance.
+
+---
+
+## Phase 4: Run Test 3
+
+### 4. Execute third workflow run
+**Test 3 Query:** [Selected query 3]
+
+Same process, same documentation.
+
+**Document in:** `your_workspace/your_workflows/research_analysis_experiment/test_3_results.md`
+
+**By now, you should see patterns:**
+- Consistent failure points (if any)
+- Consistent quality levels
+- Timing consistency
+- Edge cases or limitations
+
+**Why this matters:** Three runs provide statistical confidence in the workflow's reliability.
+
+---
+
+## Phase 5: Analyze Patterns Across Tests
+
+### 5. Create consolidated analysis
+Compare all 3 tests to identify patterns:
+
+**File:** `your_workspace/your_workflows/research_analysis_experiment/consolidated_test_analysis.md`
+
+```markdown
+# Consolidated Test Analysis
+
+## Summary Table
+
+| Metric | Test 1 | Test 2 | Test 3 | Average |
+|--------|--------|--------|--------|---------|
+| Papers Retrieved | {{ n }} | {{ n }} | {{ n }} | {{ avg }} |
+| Relevance Rating | {{ 1-10 }} | {{ 1-10 }} | {{ 1-10 }} | {{ avg }} |
+| PDF Processing Quality | {{ 1-10 }} | {{ 1-10 }} | {{ 1-10 }} | {{ avg }} |
+| Technical Analysis Quality | {{ 1-10 }} | {{ 1-10 }} | {{ 1-10 }} | {{ avg }} |
+| Commercial Analysis Quality | {{ 1-10 }} | {{ 1-10 }} | {{ 1-10 }} | {{ avg }} |
+| Output Quality | {{ 1-10 }} | {{ 1-10 }} | {{ 1-10 }} | {{ avg }} |
+| Total Time (min) | {{ n }} | {{ n }} | {{ n }} | {{ avg }} |
+| Errors Encountered | {{ n }} | {{ n }} | {{ n }} | {{ total }} |
+
+## Consistency Analysis
+
+**What was consistent across all tests:**
+- {{ observation }}
+- {{ observation }}
+
+**What varied significantly:**
+- {{ observation }}
+- {{ observation }}
+
+## Failure Modes Identified
+1. {{ failure type }}: Occurred in {{ which tests }}
+   - Root cause: {{ analysis }}
+   - Severity: {{ high/medium/low }}
+
+2. {{ failure type }}: Occurred in {{ which tests }}
+   - Root cause: {{ analysis }}
+   - Severity: {{ high/medium/low }}
+
+## Performance Patterns
+
+**Retrieval:**
+- {{ observation about search quality }}
+
+**PDF Processing:**
+- {{ observation about multimodal content handling }}
+
+**Analysis Quality:**
+- {{ observation about LLM analysis output }}
+
+**Workflow Stability:**
+- {{ observation about reliability }}
+
+## Success Rate
+- **Completed Successfully:** {{ X/3 tests }}
+- **Partial Success:** {{ X/3 tests }}
+- **Failed:** {{ X/3 tests }}
+
+## Key Learnings
+1. {{ learning }}
+2. {{ learning }}
+3. {{ learning }}
+```
+
+**Why this matters:** Pattern analysis reveals the true capability and limitations of your workflow.
+
+---
+
+## Phase 6: Measure Against Success Criteria
+
+### 6. Evaluate against experiment success criteria
+Refer back to your experiment plan (from problem_definition.md):
+
+**Success Criteria Check:**
+
+**Primary Metric:**
+- ✅ / ❌ Workflow Completion: Can successfully run end-to-end?
+  - Result: {{ X/3 tests completed successfully }}
+
+**Secondary Metrics:**
+- Checkpoint Implementation Quality: {{ average rating 1-10 }}
+- State Persistence: {{ Pass / Fail }}
+- API Integration Reliability: {{ success rate % }}
+- PDF Processing Quality: {{ average rating 1-10 }}
+- Analysis Usefulness: {{ average rating 1-10 }}
+- Learning Curve: {{ total hours spent }}
+- Confidence to Scale: {{ rating 1-10 }}
+
+**Experiment succeeds if:**
+- ✅ / ❌ Successfully built the workflow in n8n within 1 week
+- ✅ / ❌ Blocking checkpoints work (all 3 tests)
+- ✅ / ❌ Retrieved papers are relevant (avg rating ≥ 6/10)
+- ✅ / ❌ Multimodal LLM processes PDFs successfully (avg rating ≥ 6/10)
+- ✅ / ❌ Analysis captures key insights (avg rating ≥ 6/10)
+- ✅ / ❌ Confidence level ≥ 7/10 in ability to build Phase 1 MVP
+
+**Tally:** {{ X/6 success criteria met }}
+
+**Why this matters:** Objective evaluation against predefined criteria prevents subjective bias in the Go/No-Go decision.
+
+---
+
+## Output Requirements
+
+At the end of this step, create:
+
+1. **Files:** Individual test results
+   - `test_1_results.md`
+   - `test_2_results.md`
+   - `test_3_results.md`
+
+2. **File:** `consolidated_test_analysis.md`
+   - Pattern analysis across all 3 tests
+   - Success criteria evaluation
+
+3. **File:** `your_workspace/your_workflows/research_analysis_experiment/outputs/`
+   - 3 complete use case documents (one per test)
+   - Demonstrates consistency (or inconsistency) of output quality
+
+---
+
+## Instructions for the AI Assistant
+
+- Encourage rigorous testing - don't rush through the 3 runs
+- If a test fails completely, document the failure thoroughly before moving to next test
+- Help interpret patterns - what do variations in quality tell us?
+- Be honest about weaknesses - better to know limitations now than after investing in Phase 1
+- If success criteria aren't met, that's valid data - don't try to spin it positively
+- Prepare user for Step 8 where they'll make the Go/No-Go decision
+- Celebrate if tests go well! This is a major milestone.

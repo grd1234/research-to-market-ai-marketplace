@@ -1,0 +1,258 @@
+## Goal: Test Claude vision AND GPT-4V with research papers (images, tables, math)
+
+Your task is to guide the user through testing both Claude and GPT-4V for PDF processing to determine which multimodal LLM best handles research papers with complex content (images, tables, mathematical notation).
+
+### Why This Matters
+This is the critical experiment within the experiment. Research papers aren't just text - they contain diagrams, architectural figures, result tables, and mathematical proofs. You need to know which LLM can accurately process this multimodal content before committing to Phase 1 MVP.
+
+---
+
+## Phase 1: Prepare Test Papers
+
+### 1. Select test papers with multimodal content
+From your retrieval workflow (Step 3), select or find papers that have:
+- **Images/Diagrams:** Architecture diagrams, system illustrations
+- **Tables:** Experimental results, comparisons
+- **Mathematical Notation:** Equations, proofs, formulas
+
+**Recommended test papers:**
+1. A paper with clear architecture diagram (e.g., neural network architecture)
+2. A paper with results tables (e.g., model performance comparisons)
+3. A paper with heavy mathematical notation (e.g., theoretical ML paper)
+
+**Download PDFs** for testing:
+- Save to your_workspace/your_workflows/research_analysis_experiment/test_pdfs/
+
+**Why this matters:** You're not testing simple text extraction - you're testing whether LLMs can "see" and understand visual and mathematical content.
+
+---
+
+## Phase 2: Test Claude Vision
+
+### 2. Build Claude vision test workflow
+Create n8n workflow:
+
+**Workflow: Claude PDF Test**
+1. **Manual Trigger** (or use output from Step 3)
+2. **HTTP Request** node - Download PDF:
+   - URL: `{{ $json.pdf_url }}`
+   - Response Format: "File"
+   - Save to: `/tmp/paper.pdf`
+3. **Read Binary File** node:
+   - File Path: `/tmp/paper.pdf`
+4. **Convert to Base64** (if needed) or **HTTP Request to Claude API:**
+   - Method: POST
+   - URL: `https://api.anthropic.com/v1/messages`
+   - Headers:
+     - `x-api-key`: [Your Anthropic API key]
+     - `anthropic-version`: `2023-06-01`
+     - `content-type`: `application/json`
+   - Body:
+   ```json
+   {
+     "model": "claude-3-5-sonnet-20241022",
+     "max_tokens": 4096,
+     "messages": [{
+       "role": "user",
+       "content": [
+         {
+           "type": "document",
+           "source": {
+             "type": "base64",
+             "media_type": "application/pdf",
+             "data": "{{ $binary.data.toString('base64') }}"
+           }
+         },
+         {
+           "type": "text",
+           "text": "Analyze this research paper. Extract: 1) Main problem addressed, 2) Methodology used, 3) Key results (including data from tables if present), 4) Any technical diagrams or architectures described, 5) Mathematical formulations if present. Be specific about visual and tabular content."
+         }
+       ]
+     }]
+   }
+   ```
+
+**Alternative: Use Claude node in n8n**
+- If n8n has Claude node with document support, use that instead of raw HTTP
+
+**Execute and Review:**
+- Did Claude extract text accurately?
+- Did Claude describe images/diagrams?
+- Did Claude extract table data?
+- Did Claude represent mathematical notation?
+
+**Rate quality (1-10) for:**
+- Text extraction
+- Image/diagram description
+- Table data extraction
+- Mathematical notation handling
+
+**Why this matters:** Claude 3.5 Sonnet with vision can process PDFs directly - no need for external extraction tools if it works well.
+
+---
+
+## Phase 3: Test GPT-4V (Optional)
+
+### 3. Build GPT-4V test workflow
+If you have OpenAI API access:
+
+**Note:** GPT-4V typically requires converting PDF pages to images first, or using PDF-to-image service.
+
+**Simplified Approach:**
+1. Extract first page of PDF as image (use pdf2image library or online service)
+2. Send image to GPT-4V:
+
+**HTTP Request to OpenAI:**
+- Method: POST
+- URL: `https://api.openai.com/v1/chat/completions`
+- Headers:
+  - `Authorization`: `Bearer [Your OpenAI API key]`
+  - `Content-Type`: `application/json`
+- Body:
+```json
+{
+  "model": "gpt-4-vision-preview",
+  "messages": [{
+    "role": "user",
+    "content": [
+      {
+        "type": "text",
+        "text": "Analyze this research paper page. Extract: problem, methodology, results from tables, diagrams, and mathematical formulas."
+      },
+      {
+        "type": "image_url",
+        "image_url": {
+          "url": "data:image/jpeg;base64,[base64-image]"
+        }
+      }
+    ]
+  }],
+  "max_tokens": 4096
+}
+```
+
+**Rate quality (1-10) same as Claude test**
+
+**Why this matters:** GPT-4V may handle certain types of visual content differently than Claude - comparison helps choose the best tool.
+
+---
+
+## Phase 4: Compare Results
+
+### 4. Side-by-side comparison
+For each test paper, create comparison:
+
+**File:** `your_workspace/your_workflows/research_analysis_experiment/pdf_processing_comparison.md`
+
+```markdown
+# PDF Processing Comparison: Claude vs GPT-4V
+
+## Test Paper 1: [Title with Architecture Diagram]
+
+### Claude 3.5 Sonnet Results
+- **Text Extraction:** [Rating 1-10] - [Notes]
+- **Diagram Description:** [Rating 1-10] - [Notes]
+- **Table Extraction:** [Rating 1-10] - [Notes]
+- **Math Notation:** [Rating 1-10] - [Notes]
+- **Overall Quality:** [Rating 1-10]
+- **Specific Example:** [Copy impressive or poor output]
+
+### GPT-4V Results
+- **Text Extraction:** [Rating 1-10] - [Notes]
+- **Diagram Description:** [Rating 1-10] - [Notes]
+- **Table Extraction:** [Rating 1-10] - [Notes]
+- **Math Notation:** [Rating 1-10] - [Notes]
+- **Overall Quality:** [Rating 1-10]
+- **Specific Example:** [Copy impressive or poor output]
+
+---
+
+## Test Paper 2: [Title with Results Tables]
+[Same format]
+
+---
+
+## Test Paper 3: [Title with Heavy Math]
+[Same format]
+
+---
+
+## Decision Matrix
+
+| Dimension | Claude | GPT-4V | Winner |
+|-----------|---------|---------|---------|
+| Text Extraction | [Score] | [Score] | [Winner] |
+| Image/Diagram | [Score] | [Score] | [Winner] |
+| Table Data | [Score] | [Score] | [Winner] |
+| Math Notation | [Score] | [Score] | [Winner] |
+| Ease of Integration in n8n | [Score] | [Score] | [Winner] |
+| API Cost (estimated) | [$ per paper] | [$ per paper] | [Winner] |
+| **Overall** | [Total] | [Total] | **[CHOSEN]** |
+
+## Final Decision
+**Selected LLM for Phase 1 MVP:** [Claude / GPT-4V / Both]
+
+**Reasoning:** [Why this choice? What were the deciding factors?]
+
+**Trade-offs Accepted:** [What are we giving up with this choice?]
+```
+
+**Why this matters:** A documented, evidence-based decision prevents second-guessing later and provides a reference for the choice.
+
+---
+
+## Phase 5: Integrate Winner into n8n Workflow
+
+### 5. Create reusable PDF processing subworkflow
+Based on your decision, create a standardized PDF processing flow:
+
+**Workflow: PDF Analysis**
+- Input: PDF URL or binary data
+- Processing: Chosen LLM (Claude or GPT-4V)
+- Output: Structured analysis (JSON format)
+
+**Example output structure:**
+```json
+{
+  "problem_addressed": "...",
+  "methodology": "...",
+  "key_results": ["...", "..."],
+  "diagrams_described": ["...", "..."],
+  "tables_data": [{table_name: "...", data: [...]}],
+  "mathematical_content": "...",
+  "technical_feasibility": "...",
+  "limitations": "..."
+}
+```
+
+**Why this matters:** This standardized output will be used in Step 5 for the full analysis pipeline.
+
+---
+
+## Output Requirements
+
+At the end of this step, create:
+
+1. **File:** `your_workspace/your_workflows/research_analysis_experiment/pdf_processing_comparison.md`
+   - Complete comparison with decision documented
+
+2. **n8n Workflow:** "PDF Analysis - [Chosen LLM]"
+   - Reusable workflow for processing PDFs
+   - Tested with 3 papers
+   - Returns structured output
+
+3. **Test PDFs saved:** `your_workspace/your_workflows/research_analysis_experiment/test_pdfs/`
+   - Keep these for reference and future testing
+
+---
+
+## Instructions for the AI Assistant
+
+- Emphasize this is an experiment within the experiment - PDF processing quality determines feasibility
+- If Claude works well, recommend using it (simpler API, direct PDF support)
+- If GPT-4V is needed, help with PDF-to-image conversion
+- Be honest about limitations - if both struggle with math/tables, document this as a risk
+- Help interpret results - what's "good enough" vs "needs alternative approach"
+- If neither LLM handles multimodal content well enough, this may be a pivot signal
+- Encourage detailed documentation - these findings inform Phase 1 decisions
+- Celebrate when they find a solution that works!

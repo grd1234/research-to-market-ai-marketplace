@@ -1,0 +1,231 @@
+## Goal: Master Wait nodes + webhook pattern for blocking checkpoints
+
+Your task is to guide the user through learning and implementing blocking checkpoints in n8n using Wait nodes and webhooks. This is the critical pattern that enables human-in-the-loop workflows.
+
+### Why This Matters
+Blocking checkpoints are what make your workflow collaborative instead of fully automated. The workflow needs to pause, wait for human input, and then continue with that context. Mastering this pattern is essential for your 3-checkpoint research analysis workflow.
+
+---
+
+## Understanding Blocking Checkpoints
+
+### 1. Explain the concept
+Before building, make sure the user understands what we're creating:
+
+**Blocking Checkpoint Pattern:**
+1. Workflow reaches a checkpoint
+2. Workflow PAUSES (blocks) - doesn't proceed further
+3. Workflow sends notification to user (email, webhook, form link)
+4. User reviews information and responds (approve, reject, refine)
+5. Workflow RESUMES with user's response
+6. Workflow continues to next step
+
+**Why this matters:** Understanding the pattern helps debug issues and adapt it for different use cases.
+
+---
+
+## Phase 1: Learn Wait Node Basics
+
+### 2. Create a simple Wait node test
+Guide the user to build this minimal workflow:
+
+**Test Workflow 1: Basic Wait**
+1. Add **Manual Trigger** node
+2. Add **Set** node (to create test data):
+   - Add field: `message` = "Workflow started"
+3. Add **Wait** node:
+   - Resume: "After time interval"
+   - Wait Amount: 30 seconds
+4. Add another **Set** node:
+   - Add field: `message` = "Workflow resumed after wait"
+
+**Execute and observe:**
+- Workflow starts
+- Pauses for 30 seconds
+- Automatically resumes
+- Shows both messages
+
+**Why this matters:** This demonstrates the "pause and resume" behavior, but without user input yet.
+
+---
+
+## Phase 2: Add Webhook for User Input
+
+### 3. Create a webhook-based checkpoint
+Guide the user to build this workflow:
+
+**Test Workflow 2: Wait for Webhook**
+1. Add **Manual Trigger** node
+2. Add **Set** node:
+   - Add field: `checkpoint_data` = "Here's the data for review"
+3. Add **Wait** node:
+   - Resume: "On webhook call"
+   - Execution Mode: "Webhook"
+   - This will generate a unique webhook URL
+4. Add **Set** node (after wait):
+   - Add field: `user_decision` = `{{ $json.decision }}`
+   - Add field: `status` = "Workflow resumed with user input"
+
+**How to test:**
+1. Execute the workflow - it will pause at the Wait node
+2. Copy the webhook URL from the Wait node
+3. Call the webhook with test data (use Postman, curl, or browser):
+   ```
+   POST [webhook-url]
+   Body: {"decision": "approved"}
+   ```
+4. Workflow resumes with the user's decision
+
+**Why this matters:** This is the core mechanism for blocking checkpoints. The workflow literally pauses until the webhook is called.
+
+---
+
+## Phase 3: Add User-Friendly Form
+
+### 4. Create a form for user input
+Improve the webhook test by adding a simple form:
+
+**Test Workflow 3: Wait with Form**
+1. Add **Manual Trigger** node
+2. Add **Set** node:
+   - `checkpoint_message` = "Please review this data and approve or reject"
+   - `data_to_review` = "Test paper: Machine Learning Basics"
+3. Add **Wait** node:
+   - Resume: "On webhook call"
+4. Add **Send Email** node OR **Webhook** node to send form link:
+   - Subject: "Checkpoint 1: Review Required"
+   - Body: "Click here to review: [webhook-url]?form=true"
+   - (Note: For MVP, just copy URL manually. Later can automate form sending)
+5. Add **Set** node (after wait):
+   - Capture user response from webhook
+
+**Create a simple HTML form (external file or hosted):**
+```html
+<form action="[webhook-url]" method="POST">
+  <h2>Checkpoint Review</h2>
+  <p><strong>Data to Review:</strong> Test paper</p>
+  <label>
+    <input type="radio" name="decision" value="approved" required> Approve
+  </label>
+  <label>
+    <input type="radio" name="decision" value="rejected"> Reject
+  </label>
+  <br>
+  <label>
+    Comments: <textarea name="comments"></textarea>
+  </label>
+  <br>
+  <button type="submit">Submit</button>
+</form>
+```
+
+**Why this matters:** A form provides better UX than manually calling webhooks. Users can click buttons instead of crafting HTTP requests.
+
+---
+
+## Phase 4: Test State Persistence
+
+### 5. Verify workflow maintains state across checkpoint
+Modify Test Workflow 3 to include state before and after:
+
+**Test Workflow 4: State Persistence**
+1. **Manual Trigger**
+2. **Set** node:
+   - `paper_id` = "arxiv-12345"
+   - `paper_title` = "Test Paper"
+   - `step` = "checkpoint_1"
+3. **Wait** node (webhook-based)
+4. **Set** node (after wait):
+   - `user_decision` = `{{ $json.decision }}`
+   - `previous_paper_id` = `{{ $('Set').item.json.paper_id }}`
+   - Verify: Does `previous_paper_id` still equal "arxiv-12345"?
+
+**Expected result:** State from before the checkpoint should be accessible after the checkpoint.
+
+If state is lost:
+- Check n8n execution settings
+- Ensure workflow is using "Execution Mode: Webhook" correctly
+- Check n8n version (older versions had state issues)
+
+**Why this matters:** Your research analysis workflow needs to remember which papers were retrieved after Checkpoint 1 is complete. State persistence is critical.
+
+---
+
+## Phase 5: Document the Pattern
+
+### 6. Save the blocking checkpoint pattern
+Create a reference file at `your_workspace/your_workflows/research_analysis_experiment/blocking_checkpoint_pattern.md`:
+
+```markdown
+# Blocking Checkpoint Pattern for n8n
+
+## Pattern Structure
+
+1. **Pre-Checkpoint Node:** Prepare data to show user
+2. **Wait Node:** Configure with "On webhook call"
+   - This generates unique webhook URL
+   - Workflow pauses here
+3. **Notification (optional):** Send webhook URL to user via email/form
+4. **User Action:** User calls webhook with their input (form, API call, etc.)
+5. **Post-Checkpoint Node:** Process user's input and continue workflow
+
+## Example Configuration
+
+**Wait Node Settings:**
+- Resume: "On webhook call"
+- Execution Mode: "Webhook"
+
+**Accessing User Input (after Wait node):**
+- User's input is in: `{{ $json.user_field_name }}`
+
+**Accessing Pre-Checkpoint State:**
+- Use node references: `{{ $('NodeName').item.json.field_name }}`
+
+## State Persistence Tips
+- Use `Set` nodes to explicitly capture important state
+- Reference previous nodes by name to retrieve data
+- Test state accessibility after checkpoint before building complex workflows
+
+## Tested and Working
+- [x] Basic wait behavior
+- [x] Webhook-based resume
+- [x] Form-based user input
+- [x] State persistence across checkpoint
+
+**Date Mastered:** [Date]
+**Time Spent:** [Hours]
+```
+
+**Why this matters:** This becomes your reference when building the 3 checkpoints in the actual research workflow.
+
+---
+
+## Output Requirements
+
+At the end of this step, create the following files:
+
+1. **File:** `your_workspace/your_workflows/research_analysis_experiment/blocking_checkpoint_pattern.md`
+   - Documented pattern with examples
+
+2. **n8n Workflows Created:**
+   - Test Workflow 1: Basic Wait (time-based)
+   - Test Workflow 2: Wait for Webhook
+   - Test Workflow 3: Wait with Form
+   - Test Workflow 4: State Persistence Test
+
+3. **Validation:**
+   - All 4 test workflows working
+   - State persists across checkpoints
+   - User can trigger resume via webhook/form
+
+---
+
+## Instructions for the AI Assistant
+
+- Build understanding incrementally (time-based wait → webhook wait → form-based wait)
+- Ensure user tests each workflow before moving to the next
+- If state persistence doesn't work, this is a blocker - must resolve before proceeding
+- Help debug webhook issues (check URL, check HTTP method, check payload format)
+- Encourage experimentation - they should feel comfortable with this pattern
+- Once all tests pass, confirm they're ready to build real checkpoints in Step 3
+- Document time spent and any challenges encountered
