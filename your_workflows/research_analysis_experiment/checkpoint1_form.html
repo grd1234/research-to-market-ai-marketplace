@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkpoint 1: Review Papers & Select Interest Level</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #2C66BD;
+      border-bottom: 3px solid #2C66BD;
+      padding-bottom: 10px;
+    }
+    h2 {
+      color: #333;
+      margin-top: 30px;
+    }
+    .paper-card {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 6px;
+      background: #fafafa;
+    }
+    .paper-card h3 {
+      margin-top: 0;
+      color: #2C66BD;
+    }
+    .paper-card p {
+      margin: 8px 0;
+    }
+    .paper-card a {
+      color: #2C66BD;
+      text-decoration: none;
+    }
+    .paper-card a:hover {
+      text-decoration: underline;
+    }
+    fieldset {
+      border: 2px solid #2C66BD;
+      border-radius: 6px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    legend {
+      font-weight: bold;
+      color: #2C66BD;
+      padding: 0 10px;
+      font-size: 1.1em;
+    }
+    label {
+      display: block;
+      margin: 12px 0;
+      cursor: pointer;
+    }
+    label:hover {
+      background: #f0f8ff;
+      padding: 5px;
+      border-radius: 4px;
+    }
+    input[type="radio"] {
+      margin-right: 8px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-top: 5px;
+      font-size: 14px;
+    }
+    button {
+      background: #2C66BD;
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background: #1a4a8f;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .info-box {
+      background: #e8f4fd;
+      border-left: 4px solid #2C66BD;
+      padding: 15px;
+      margin: 20px 0;
+    }
+    .help-text {
+      color: #666;
+      font-size: 0.9em;
+      margin-top: 5px;
+    }
+    .alert {
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 6px;
+    }
+    .alert-success {
+      background: #d4edda;
+      border: 1px solid #28a745;
+      color: #155724;
+    }
+    .alert-error {
+      background: #f8d7da;
+      border: 1px solid #dc3545;
+      color: #721c24;
+    }
+    #loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #2C66BD;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Checkpoint 1: Review Papers & Select Interest Level</h1>
+
+  <div class="info-box">
+    <strong>📋 Instructions:</strong> Review the research papers below, select your interest level, and decide whether to proceed with these papers or refine your search.
+  </div>
+
+  <!-- Papers will be displayed here -->
+  <div id="papers-section">
+    <h2>📄 Retrieved Papers</h2>
+    <div id="papers"></div>
+  </div>
+
+  <!-- Form -->
+  <form id="checkpoint-form">
+
+    <!-- Interest Level Selection -->
+    <fieldset>
+      <legend>🎯 Select Your Interest Level</legend>
+      <p class="help-text">This determines how many validation items you'll complete at Checkpoint 2:</p>
+
+      <label>
+        <input type="radio" name="interest_level" value="monitoring" required>
+        <strong>MONITORING</strong> (3 items)
+        <div class="help-text">Just bookmarking, no action planned. Private workspace only.</div>
+      </label>
+
+      <label>
+        <input type="radio" name="interest_level" value="exploring">
+        <strong>EXPLORING</strong> (8 items)
+        <div class="help-text">Serious evaluation, building business case. Internal + researchers notified (aggregated).</div>
+      </label>
+
+      <label>
+        <input type="radio" name="interest_level" value="pilot_ready">
+        <strong>PILOT-READY</strong> (12 items)
+        <div class="help-text">Ready to test, resources committed. Researchers directly notified, pilot-ready badge.</div>
+      </label>
+
+      <label>
+        <input type="radio" name="interest_level" value="seeking_funding">
+        <strong>SEEKING FUNDING</strong> (14 items)
+        <div class="help-text">Fully validated, investor-ready. <strong>Will be listed in Phase 2 investor marketplace.</strong></div>
+      </label>
+    </fieldset>
+
+    <!-- Paper Decision -->
+    <fieldset>
+      <legend>✅ Paper Decision</legend>
+
+      <label>
+        <input type="radio" name="decision" value="approved" required>
+        <strong>Approve these papers</strong> - Proceed to analysis
+      </label>
+
+      <label>
+        <input type="radio" name="decision" value="refine">
+        <strong>Refine search query</strong> - Get different papers
+      </label>
+    </fieldset>
+
+    <!-- New Query (shown if refine is selected) -->
+    <div id="new-query-section" style="display:none;">
+      <label for="new_query">
+        <strong>New Search Query:</strong>
+        <input type="text" id="new_query" name="new_query" placeholder="e.g., deep learning computer vision">
+      </label>
+    </div>
+
+    <!-- Webhook URL Configuration -->
+    <fieldset>
+      <legend>🔗 Webhook URL</legend>
+      <label for="webhook_url">
+        <strong>Enter your n8n webhook URL:</strong>
+        <input type="text" id="webhook_url" name="webhook_url" placeholder="https://your-n8n-instance.app.n8n.cloud/webhook/abc123..." required>
+        <div class="help-text">Copy this from the Wait node in your n8n workflow</div>
+      </label>
+    </fieldset>
+
+    <!-- Submit Button -->
+    <button type="submit" id="submit-btn">Submit Decision</button>
+  </form>
+
+  <!-- Loading Indicator -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <p>Sending to n8n workflow...</p>
+  </div>
+
+  <!-- Response Message -->
+  <div id="response"></div>
+
+</div>
+
+<script>
+  // Sample papers data (replace with actual data from n8n in production)
+  const papersData = [
+    {
+      title: "Sample Paper 1: Machine Learning Applications",
+      authors: "John Doe, Jane Smith",
+      summary: "This paper explores various applications of machine learning in modern computing. It covers supervised learning, unsupervised learning, and reinforcement learning techniques with practical examples from real-world scenarios...",
+      pdf_url: "https://arxiv.org/pdf/example1.pdf",
+      source: "arXiv"
+    },
+    {
+      title: "Sample Paper 2: Deep Neural Networks for Image Recognition",
+      authors: "Alice Johnson, Bob Williams",
+      summary: "An investigation into deep neural network architectures for image recognition tasks. The paper presents novel approaches to convolutional neural networks and their applications in computer vision...",
+      pdf_url: "https://arxiv.org/pdf/example2.pdf",
+      source: "arXiv"
+    }
+  ];
+
+  // Display papers
+  function displayPapers() {
+    const papersContainer = document.getElementById('papers');
+    papersContainer.innerHTML = papersData.map((paper, index) => `
+      <div class="paper-card">
+        <h3>${index + 1}. ${paper.title}</h3>
+        <p><strong>Authors:</strong> ${paper.authors}</p>
+        <p><strong>Summary:</strong> ${paper.summary}</p>
+        <p>
+          <strong>PDF:</strong> <a href="${paper.pdf_url}" target="_blank">View PDF</a> |
+          <strong>Source:</strong> ${paper.source}
+        </p>
+      </div>
+    `).join('');
+  }
+
+  // Show/hide new query field based on decision
+  document.querySelectorAll('input[name="decision"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      const newQuerySection = document.getElementById('new-query-section');
+      if (this.value === 'refine') {
+        newQuerySection.style.display = 'block';
+        document.getElementById('new_query').required = true;
+      } else {
+        newQuerySection.style.display = 'none';
+        document.getElementById('new_query').required = false;
+      }
+    });
+  });
+
+  // Handle form submission
+  document.getElementById('checkpoint-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const data = {
+      interest_level: formData.get('interest_level'),
+      decision: formData.get('decision'),
+      new_query: formData.get('new_query') || ''
+    };
+
+    const webhookUrl = formData.get('webhook_url');
+
+    // Validate webhook URL
+    if (!webhookUrl || !webhookUrl.includes('webhook')) {
+      showResponse('Please enter a valid n8n webhook URL', 'error');
+      return;
+    }
+
+    // Show loading
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('submit-btn').disabled = true;
+    document.getElementById('response').innerHTML = '';
+
+    try {
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        showResponse(
+          `✅ Success! Workflow resumed with interest level: <strong>${data.interest_level}</strong><br>` +
+          `Decision: <strong>${data.decision}</strong>` +
+          (data.new_query ? `<br>New query: <strong>${data.new_query}</strong>` : ''),
+          'success'
+        );
+      } else {
+        showResponse(`❌ Error: Received response code ${response.status}`, 'error');
+      }
+    } catch (error) {
+      showResponse(`❌ Error sending to webhook: ${error.message}`, 'error');
+    } finally {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('submit-btn').disabled = false;
+    }
+  });
+
+  function showResponse(message, type) {
+    const responseDiv = document.getElementById('response');
+    responseDiv.className = `alert alert-${type}`;
+    responseDiv.innerHTML = message;
+  }
+
+  // Load papers when page loads
+  displayPapers();
+
+  // Save webhook URL to localStorage
+  const webhookInput = document.getElementById('webhook_url');
+  const savedWebhook = localStorage.getItem('n8n_webhook_url');
+  if (savedWebhook) {
+    webhookInput.value = savedWebhook;
+  }
+  webhookInput.addEventListener('change', function() {
+    localStorage.setItem('n8n_webhook_url', this.value);
+  });
+</script>
+
+</body>
+</html>
